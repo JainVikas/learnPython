@@ -40,8 +40,25 @@ def extract_names(filename):
   followed by the name-rank strings in alphabetical order.
   ['2006', 'Aaliyah 91', Aaron 57', 'Abagail 895', ' ...]
   """
-  # +++your code here+++
-  return
+  f= open(filename, 'r')
+  text = f.read()
+  f.close()
+  names = []
+  year =  re.search(r'Popularity\sin\s(\d\d\d\d)',text, re.DOTALL)
+  names.append(year.group(1))
+  #rank-name-tuple format is [(rank),(boy name),(girl name)]
+  ranknametuple = re.findall(r'(\d+)</td><td>(\w+)</td><td>(\w+)</td>',text, re.DOTALL)
+  name_rank_dict = {}
+  for rankname in ranknametuple:
+    (rank, boyname, girlname) = rankname
+    if not boyname in name_rank_dict:
+      name_rank_dict[boyname]=rank	
+    if not girlname in name_rank_dict:
+      name_rank_dict[girlname]=rank
+  sorted_names = sorted(name_rank_dict.keys())
+  for name in sorted_names:
+    names.append(name + " "  + name_rank_dict[name])
+  return names
 
 
 def main():
@@ -51,7 +68,7 @@ def main():
   args = sys.argv[1:]
 
   if not args:
-    print 'usage: [--summaryfile] file [file ...]'
+    print ('usage: [--summaryfile] file [file ...]')
     sys.exit(1)
 
   # Notice the summary flag and remove it from args if it is present.
@@ -59,10 +76,15 @@ def main():
   if args[0] == '--summaryfile':
     summary = True
     del args[0]
+  for filename in args:
+    names= extract_names(filename)
+    text = '\n'.join(names)
+    if summary:
+      f= open(filename+'.summary','w')
+      f.write(text + '\n')
+      f.close    
+    else:
+      print(text)
 
-  # +++your code here+++
-  # For each filename, get the names, then either print the text output
-  # or write it to a summary file
-  
 if __name__ == '__main__':
   main()
