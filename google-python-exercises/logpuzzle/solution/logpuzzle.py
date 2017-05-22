@@ -61,7 +61,7 @@ def read_urls(filename):
   # LAB(end solution)
 
 
-def download_images(img_urls, dest_dir):
+def download_images(img_urls, dest_dir):	
   """Given the urls already in the correct order, downloads
   each image into the given directory.
   Gives the images local filenames img0, img1, and so on.

@@ -9,7 +9,7 @@
 import os
 import re
 import sys
-import urllib
+import urllib.request
 
 """Logpuzzle exercise
 Given an apache logfile, find the puzzle urls and download the images.
@@ -24,7 +24,24 @@ def read_urls(filename):
   extracting the hostname from the filename itself.
   Screens out duplicate urls and returns the urls sorted into
   increasing order."""
-  # +++your code here+++
+  ind = filename.index('_')
+  hostname = filename[ind+1:]
+  
+  f= open(filename,'r')
+  text=f.read()	
+  puzzle = re.findall(r'GET\s/(\S+puzzle\S+)',text)
+  #updated does't hold any duplicate entries)
+  temp=[]
+  updated=[]
+  for url in puzzle:
+    temp.append('https://'+hostname+'/'+url)
+  for url in temp:
+    if not url in updated:
+      updated.append(url)
+  #sort URLS
+  updated= sorted(updated)
+
+  return updated
   
 
 def download_images(img_urls, dest_dir):
@@ -35,14 +52,28 @@ def download_images(img_urls, dest_dir):
   with an img tag to show each local image file.
   Creates the directory if necessary.
   """
-  # +++your code here+++
+  if not os.path.exists(dest_dir):
+    os.mkdir(dest_dir)
+  index = open(os.path.join(dest_dir, 'index.html'), 'w')
+  index.write('<html><body>\n')
   
+  i=0
+  for url in img_urls:
+    name = 'img%d.jpeg'%i
+    urllib.request.urlretrieve(url, os.path.join(dest_dir, name))
+    i+=1
+    index.write('<img src= %s>'%name)
+  index.write('\n</html></body>\n')
+  index.close()
+
+
+   
 
 def main():
   args = sys.argv[1:]
 
   if not args:
-    print 'usage: [--todir dir] logfile '
+    print ('usage: [--todir dir] logfile ')
     sys.exit(1)
 
   todir = ''
@@ -55,7 +86,7 @@ def main():
   if todir:
     download_images(img_urls, todir)
   else:
-    print '\n'.join(img_urls)
+    print ('\n'.join(img_urls))
 
 if __name__ == '__main__':
   main()
